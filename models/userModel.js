@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please confirm your password'],
     validate: {
       //This only works on CREATE and SAVE
-      validator: function (el) {
+      validator: function(el) {
         return el === this.password;
       },
       message: 'Passwords are not matching'
@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
 
   //Hash the password with cost of 12
@@ -58,7 +58,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function(next) {
   if (!this.isModified('password') || this.isNew) return next();
 
   this.passwordChangedAt = Date.now() - 1000;
@@ -66,21 +66,21 @@ userSchema.pre('save', async function (next) {
 });
 
 // QUERY MIDDLEWARE
-userSchema.pre(/^find/, function (next) {
+userSchema.pre(/^find/, function(next) {
   // This points to the current query
   this.find({ active: { $ne: false } });
 
   next();
 });
 
-userSchema.methods.correctPassword = async function (
+userSchema.methods.correctPassword = async function(
   candidatePassword,
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changeTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
@@ -93,7 +93,7 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-userSchema.methods.createPasswordResetToken = function () {
+userSchema.methods.createPasswordResetToken = function() {
   const resetToken = crypto.randomBytes(32).toString('hex');
 
   this.passwordResetToken = crypto
